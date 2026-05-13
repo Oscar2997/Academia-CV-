@@ -350,6 +350,75 @@
 </head>
 <body>
 
+<div id="login-screen" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0D2137;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:99999;
+font-family:Poppins,sans-serif;
+">
+
+  <div style="
+  background:white;
+  padding:40px;
+  border-radius:16px;
+  width:320px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  ">
+
+    <h2 style="margin-bottom:10px;color:#0D2137;">
+      Academia CV+
+    </h2>
+
+    <p style="font-size:14px;color:#666;margin-bottom:20px;">
+      Acceso privado
+    </p>
+
+    <input 
+      type="password" 
+      id="password"
+      placeholder="Ingrese contraseña"
+      style="
+      width:100%;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      margin-bottom:15px;
+      "
+    >
+
+    <button onclick="checkPassword()" style="
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      background:#00B9D6;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    ">
+      Ingresar
+    </button>
+
+    <p id="error" style="
+      color:red;
+      margin-top:10px;
+      font-size:13px;
+      display:none;
+    ">
+      Contraseña incorrecta
+    </p>
+
+  </div>
+</div>
+
 <div id="app">
   <!-- SIDEBAR -->
   <aside id="sidebar">
@@ -1725,6 +1794,22 @@ function init() {
 }
 
 init();
+</script>
+<script>
+function checkPassword() {
+
+  const password = document.getElementById("password").value;
+
+  if(password === "cvplus2026") {
+
+    document.getElementById("login-screen").style.display = "none";
+
+  } else {
+
+    document.getElementById("error").style.display = "block";
+
+  }
+}
 </script>
 </body>
 </html>
