@@ -24,7 +24,8 @@
       --sidebar-w: 280px;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { height:100%; font-family:'Poppins',sans-serif; background:var(--gray-bg); color:var(--text); overflow:hidden; }
+    html, body { height:100%; font-family:'Poppins',sans-serif; background:var(--gray-bg); color:var(--text); overflow:hidden;overflow-x:hidden;
+max-width:100%; }
 
     /* ─── LAYOUT ─── */
     #app { display:flex; height:100vh; overflow:hidden; }
@@ -168,7 +169,8 @@
     .module-card {
       background:var(--white); border-radius:12px; padding:16px;
       border:1.5px solid var(--gray-light); cursor:pointer;
-      transition:all 0.22s; position:relative; overflow:hidden;
+      transition:all 0.22s; position:relative; overflow:hidden;height:auto;
+min-height:260px;
     }
     .module-card:hover { border-color:var(--cyan); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,185,214,0.12); }
     .module-card.studied { border-color:rgba(0,200,83,0.4); }
@@ -349,6 +351,75 @@
     /* No results */
     .no-results { text-align:center; padding:40px; color:var(--gray-text); }
     .no-results .nr-icon { font-size:40px; margin-bottom:10px; }
+    @media (max-width: 768px) {
+
+  #content {
+    padding: 14px !important;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .module-content {
+    padding: 18px !important;
+  }
+
+  .module-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .module-actions button {
+    width: 100% !important;
+  }
+
+  .comparison-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .dash-welcome {
+    flex-direction: column !important;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .dash-welcome-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #topbar {
+    padding: 12px !important;
+  }
+
+  .module-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .question-card {
+    padding: 18px !important;
+  }
+
+  .quiz-header {
+    padding: 18px !important;
+  }
+
+  .glossary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .highlight-box,
+  .speech-box,
+  .info-box,
+  .tip-box {
+    padding: 14px !important;
+  }
+
+}
   </style>
 </head>
 <body>
@@ -1381,9 +1452,17 @@ function loadQuizScores() {
 function saveQuizScores(s) {
   try { localStorage.setItem('cvplus_quiz_scores', JSON.stringify(s)); } catch(e){}
 }
+function loadQuizAttempts() {
+  try { return JSON.parse(localStorage.getItem('cvplus_quiz_attempts') || '{}'); } catch(e){ return {}; }
+}
+
+function saveQuizAttempts(a) {
+  try { localStorage.setItem('cvplus_quiz_attempts', JSON.stringify(a)); } catch(e){}
+}
 
 let PROGRESS = loadProgress();
 let QUIZ_SCORES = loadQuizScores();
+let QUIZ_ATTEMPTS = loadQuizAttempts();
 
 // ═══════════════════════════════════════════════════════
 // BUILD SIDEBAR NAV
@@ -1660,9 +1739,9 @@ function finishQuiz() {
   const pct = Math.round((correct/total)*100);
 
   // Save score
-  const existing = QUIZ_SCORES[qs.module];
-  if(!existing || pct > existing) { QUIZ_SCORES[qs.module] = pct; saveQuizScores(QUIZ_SCORES); }
-  // Auto-mark as studied if 75%+
+ QUIZ_SCORES[qs.module] = pct;
+saveQuizScores(QUIZ_SCORES);
+  // Auto-mark as studied if 100%+
   if(pct >= 75 && !PROGRESS[qs.module]) { PROGRESS[qs.module] = true; saveProgress(PROGRESS); }
   updateStats();
 
@@ -1677,7 +1756,9 @@ function finishQuiz() {
       <div style="font-size:40px;margin-bottom:12px;">${pct>=80?'🏆':pct>=60?'👍':'📖'}</div>
       <div class="result-score ${scoreClass}">${pct}%</div>
       <div class="result-msg">${msg}</div>
+      
       <div class="result-sub">${sub}</div>
+      <div style="margin-top:10px;font-size:14px;color:#888;">Intentos realizados: ${QUIZ_ATTEMPTS[qs.module] || 0}</div>
       <div class="result-breakdown">
         <div class="rb-item good"><div class="rb-num">${correct}</div><div class="rb-lbl">Correctas</div></div>
         <div class="rb-item bad"><div class="rb-num">${total-correct}</div><div class="rb-lbl">Incorrectas</div></div>
