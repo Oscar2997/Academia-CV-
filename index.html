@@ -1968,13 +1968,70 @@ async function saveQuizScores(s) {
 
   try {
 
-    localStorage.setItem('cvplus_quiz_scores', JSON.stringify(s));
+    localStorage.setItem(
+      'cvplus_quiz_scores',
+      JSON.stringify(s)
+    );
+
+    const totalQuizzes =
+      Object.keys(s).length;
+
+    const averages =
+      Object.values(s).map(q => {
+
+        if(typeof q === "number") {
+          return q;
+        }
+
+        return q.average || 0;
+
+      });
+
+    const overallAverage =
+      averages.length
+      ?
+      Math.round(
+        averages.reduce((a,b)=>a+b,0)
+        /
+        averages.length
+      )
+      :
+      0;
+
+    const totalAttempts =
+      Object.values(s).reduce((acc,q)=>{
+
+        if(typeof q === "number") {
+          return acc;
+        }
+
+        return acc + (q.attempts || 0);
+
+      },0);
 
     if(window.firebaseReady) {
 
-      await saveUserData("quiz_scores", {
-        scores: s
-      });
+      await saveUserData(
+        "quiz_scores",
+        {
+
+          scores: s,
+
+          stats: {
+
+            totalQuizzes,
+
+            overallAverage,
+
+            totalAttempts,
+
+            updatedAt:
+              new Date().toISOString()
+
+          }
+
+        }
+      );
 
     }
 
@@ -2087,7 +2144,15 @@ nav.appendChild(adminBtn);
 // ═══════════════════════════════════════════════════════
 function updateStats() {
   const studied = Object.keys(PROGRESS).filter(k=>PROGRESS[k]).length;
-  const scores = Object.values(QUIZ_SCORES);
+  const scores = Object.values(QUIZ_SCORES).map(q => {
+
+  if(typeof q === "number") {
+    return q;
+  }
+
+  return q.average || 0;
+
+});
   const quizzesCount = scores.length;
   const avgScore = quizzesCount > 0 ? Math.round(scores.reduce((a,b)=>a+b,0)/quizzesCount) : null;
 
@@ -2305,11 +2370,69 @@ function finishQuiz() {
   const pct = Math.round((correct/total)*100);
 
   // Save score
- QUIZ_SCORES[qs.module] = pct;
-saveQuizScores(QUIZ_SCORES);
-  // Auto-mark as studied if 100%+
-  if(pct >= 75 && !PROGRESS[qs.module]) { PROGRESS[qs.module] = true; saveProgress(PROGRESS); }
+ const previousData =
+  QUIZ_SCORES[qs.module] || {};
+
+if(!previousData.attempts) {
+  previousData.attempts = 0;
+}
+
+if(!previousData.scores) {
+  previousData.scores = [];
+}
+
+previousData.attempts += 1;
+
+previousData.scores.push(pct);
+
+previousData.lastScore = pct;
+
+previousData.average =
+  Math.round(
+    previousData.scores.reduce((a,b)=>a+b,0)
+    /
+    previousData.scores.length
+  );
+
+previousData.lastActivity =
+  new Date().toISOString();
+
+QUIZ_SCORES[qs.module] = previousData;
+try {
+
+  saveQuizScores(QUIZ_SCORES);
+
+} catch(e) {
+
+  console.error(e);
+
+}
+
+try {
+
+  if(pct >= 75 && !PROGRESS[qs.module]) {
+
+    PROGRESS[qs.module] = true;
+
+    saveProgress(PROGRESS);
+
+  }
+
+} catch(e) {
+
+  console.error(e);
+
+}
+
+try {
+
   updateStats();
+
+} catch(e) {
+
+  console.error(e);
+
+}
 
   document.getElementById('quiz-prog-fill').style.width = '100%';
 
@@ -2324,15 +2447,15 @@ saveQuizScores(QUIZ_SCORES);
       <div class="result-msg">${msg}</div>
       
       <div class="result-sub">${sub}</div>
-      <div style="margin-top:10px;font-size:14px;color:#888;">Intentos realizados: ${QUIZ_ATTEMPTS[qs.module] || 0}</div>
+      <div style="margin-top:10px;font-size:14px;color:#888;">
+Intentos realizados:
+${previousData.attempts || 0}
+</div>
       <div class="result-breakdown">
         <div class="rb-item good"><div class="rb-num">${correct}</div><div class="rb-lbl">Correctas</div></div>
         <div class="rb-item bad"><div class="rb-num">${total-correct}</div><div class="rb-lbl">Incorrectas</div></div>
       </div>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="startQuiz()">🔄 Repetir Quiz</button>
-        <button class="btn btn-primary" onclick="showModule(${qs.module})">← Volver al Módulo</button>
-        <button class="btn btn-secondary" onclick="showDashboard()">🏠 Dashboard</button>
       </div>
     </div>`;
 }
@@ -2705,5 +2828,11 @@ Cerrar
 </button>
 
 </div>
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+<script type="module" src="js/quizzes.js"></script>
+<script type="module" src="js/modules.js"></script>
+<script type="module" src="js/admin.js"></script>
 </body>
 </html>
