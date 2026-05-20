@@ -454,7 +454,18 @@ font-family:Poppins,sans-serif;
     <p style="font-size:14px;color:#666;margin-bottom:20px;">
       Acceso privado
     </p>
-
+<input
+type="email"
+id="email"
+placeholder="Ingrese correo"
+style="
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+margin-bottom:15px;
+"
+>
     <input 
       type="password" 
       id="password"
@@ -1929,21 +1940,78 @@ const STATE = {
 function loadProgress() {
   try { return JSON.parse(localStorage.getItem('cvplus_progress') || '{}'); } catch(e){ return {}; }
 }
-function saveProgress(p) {
-  try { localStorage.setItem('cvplus_progress', JSON.stringify(p)); } catch(e){}
+async function saveProgress(p) {
+
+  try {
+
+    localStorage.setItem('cvplus_progress', JSON.stringify(p));
+
+    if(window.firebaseReady) {
+
+      await saveUserData("progress", {
+        progress: p
+      });
+
+    }
+
+  } catch(e) {
+
+    console.error(e);
+
+  }
+
 }
 function loadQuizScores() {
   try { return JSON.parse(localStorage.getItem('cvplus_quiz_scores') || '{}'); } catch(e){ return {}; }
 }
-function saveQuizScores(s) {
-  try { localStorage.setItem('cvplus_quiz_scores', JSON.stringify(s)); } catch(e){}
+async function saveQuizScores(s) {
+
+  try {
+
+    localStorage.setItem('cvplus_quiz_scores', JSON.stringify(s));
+
+    if(window.firebaseReady) {
+
+      await saveUserData("quiz_scores", {
+        scores: s
+      });
+
+    }
+
+  } catch(e) {
+
+    console.error(e);
+
+  }
+
 }
 function loadQuizAttempts() {
   try { return JSON.parse(localStorage.getItem('cvplus_quiz_attempts') || '{}'); } catch(e){ return {}; }
 }
 
-function saveQuizAttempts(a) {
-  try { localStorage.setItem('cvplus_quiz_attempts', JSON.stringify(a)); } catch(e){}
+async function saveQuizAttempts(a) {
+
+  try {
+
+    localStorage.setItem(
+      'cvplus_quiz_attempts',
+      JSON.stringify(a)
+    );
+
+    if(window.firebaseReady) {
+
+      await window.saveUserData("quiz_attempts", {
+        attempts: a
+      });
+
+    }
+
+  } catch(e) {
+
+    console.error(e);
+
+  }
+
 }
 
 let PROGRESS = loadProgress();
@@ -1971,7 +2039,18 @@ function buildNav() {
   dash.innerHTML = `<span class="nav-icon">🏠</span><span class="nav-title">Dashboard</span>`;
   dash.onclick = () => showDashboard();
   nav.appendChild(dash);
+const adminBtn = document.createElement('div');
 
+adminBtn.className = 'nav-item';
+
+adminBtn.innerHTML = `
+<span class="nav-icon">⚙️</span>
+<span class="nav-title">ADMIN</span>
+`;
+
+adminBtn.onclick = () => openAdminPanel();
+
+nav.appendChild(adminBtn);
   for(const [catKey, catData] of Object.entries(CAT_INFO)){
     const catDiv = document.createElement('div');
     catDiv.className = 'nav-category';
@@ -2366,21 +2445,253 @@ function init() {
 
 init();
 </script>
-<script>
-function checkPassword() {
 
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBoZ1CcQVNhqCNIfn2k4y6YA9Dt3cm4a0o",
+  authDomain: "cvmas-academia.firebaseapp.com",
+  projectId: "cvmas-academia",
+  storageBucket: "cvmas-academia.firebasestorage.app",
+  messagingSenderId: "187622570860",
+  appId: "1:187622570860:web:2d1b6410db3838e1fc1149",
+  measurementId: "G-JK0214LN97"
+};
+
+const app = initializeApp(firebaseConfig);
+
+window.auth = getAuth(app);
+window.db = getFirestore(app);
+window.firebaseReady = true;
+window.checkPassword = async function() {
+
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  if(password === "cvplus2026") {
+  try {
+
+    if (!window.firebaseReady) {
+      throw new Error("Firebase no está listo");
+    }
+
+    const { signInWithEmailAndPassword } = await import(
+      "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js"
+    );
+
+    await signInWithEmailAndPassword(
+      window.auth,
+      email,
+      password
+    );
 
     document.getElementById("login-screen").style.display = "none";
+document.getElementById("login-screen").remove();
 
-  } else {
+document.getElementById("app").style.display = "flex";
 
+try {
+  buildNav();
+} catch(e) {
+  console.error("ERROR buildNav:", e);
+}
+
+try {
+  renderDashboard();
+} catch(e) {
+  console.error("ERROR renderDashboard:", e);
+}
+
+document.getElementById("error").style.display = "none";
+
+console.log("LOGIN COMPLETO");
+
+  } catch(error) {
+
+    console.error(error);
+
+    document.getElementById("error").innerText = error.message;
     document.getElementById("error").style.display = "block";
 
   }
+
 }
+window.saveUserData = async function(collection, data) {
+
+  const user = window.auth.currentUser;
+
+  if(!user) return;
+
+  const { doc, setDoc } = await import(
+    "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js"
+  );
+
+  await setDoc(
+    doc(window.db, collection, user.uid),
+    data
+  );
+}
+
+window.loadUserData = async function(collection) {
+
+  const user = window.auth.currentUser;
+
+  if(!user) return null;
+
+  const { doc, getDoc } = await import(
+    "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js"
+  );
+
+  const snap = await getDoc(
+    doc(window.db, collection, user.uid)
+  );
+
+  if(snap.exists()) {
+    return snap.data();
+  }
+
+  return null;
+}
+console.log("Firebase conectado correctamente");
+window.openAdminPanel = async function() {
+
+  document.getElementById(
+    "admin-panel"
+  ).style.display = "block";
+
+  const {
+    collection,
+    getDocs
+  } = await import(
+    "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js"
+  );
+
+  // usuarios
+  const usersSnapshot = await getDocs(
+    collection(window.db, "users")
+  );
+
+  // intentos quizzes
+  const attemptsSnapshot = await getDocs(
+    collection(window.db, "quiz_attempts")
+  );
+
+  const attemptsMap = {};
+
+  attemptsSnapshot.forEach(doc => {
+
+    attemptsMap[doc.id] = doc.data();
+
+  });
+
+  let html = "";
+
+  usersSnapshot.forEach(doc => {
+
+    const data = doc.data();
+
+    const attemptsData = attemptsMap[doc.id];
+
+    let attemptsHTML = "";
+
+    if(
+      attemptsData &&
+      attemptsData.attempts
+    ) {
+
+      Object.entries(
+        attemptsData.attempts
+      ).forEach(([quiz, total]) => {
+
+        attemptsHTML += `
+          <p>
+            Quiz ${quiz}:
+            ${total} intentos
+          </p>
+        `;
+
+      });
+
+    }
+
+    html += `
+
+      <div style="
+        border:1px solid #ccc;
+        border-radius:12px;
+        padding:20px;
+        margin-bottom:15px;
+      ">
+
+        <h3>
+          ${data.email || "Sin correo"}
+        </h3>
+
+        <p>
+          Último Login:
+          ${data.lastLogin || "No disponible"}
+        </p>
+
+        <div>
+          <strong>
+            Intentos de Quiz:
+          </strong>
+
+          ${attemptsHTML}
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  document.getElementById(
+    "admin-users"
+  ).innerHTML = html;
+
+};
+
+window.closeAdminPanel = function() {
+
+  document.getElementById(
+    "admin-panel"
+  ).style.display = "none";
+
+};
 </script>
+<div id="admin-panel" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+z-index:99999;
+overflow:auto;
+padding:30px;
+">
+
+<h1>⚙️ Panel Administrador</h1>
+
+<div id="admin-users"></div>
+
+<button onclick="closeAdminPanel()" style="
+padding:12px 20px;
+background:#0D2137;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+margin-top:20px;
+">
+Cerrar
+</button>
+
+</div>
 </body>
 </html>
