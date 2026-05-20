@@ -2487,7 +2487,19 @@ window.checkPassword = async function() {
       email,
       password
     );
+const user = window.auth.currentUser;
 
+if(user) {
+
+  await window.saveUserData("users", {
+
+    email: user.email,
+
+    lastLogin: new Date().toISOString()
+
+  });
+
+}
     document.getElementById("login-screen").style.display = "none";
 document.getElementById("login-screen").remove();
 
