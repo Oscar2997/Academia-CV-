@@ -2382,14 +2382,15 @@ function finishQuiz() {
   const pct = Math.round((correct/total)*100);
 
   // Save score
- const previousData =
-  QUIZ_SCORES[qs.module] || {};
+ const previousData = QUIZ_SCORES[qs.module] || {
+  attempts: 0,
+  scores: [],
+  average: 0,
+  lastScore: 0,
+  lastActivity: null
+};
 
-if(!previousData.attempts) {
-  previousData.attempts = 0;
-}
-
-if(!previousData.scores) {
+if(!Array.isArray(previousData.scores)){
   previousData.scores = [];
 }
 
