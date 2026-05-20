@@ -2099,6 +2099,18 @@ function buildNav() {
 const adminBtn = document.createElement('div');
 
 adminBtn.className = 'nav-item';
+const currentUserData =
+JSON.parse(
+localStorage.getItem(
+"cvplus_user"
+) || "{}"
+);
+
+if(
+currentUserData.role !== "admin"
+){
+return;
+}
 
 adminBtn.innerHTML = `
 <span class="nav-icon">⚙️</span>
@@ -2611,6 +2623,16 @@ window.checkPassword = async function() {
       password
     );
 const user = window.auth.currentUser;
+localStorage.setItem(
+"cvplus_user",
+JSON.stringify({
+email:user.email,
+role:
+user.email === "oskarmchdo@gmail.com"
+? "admin"
+: "participant"
+})
+);
 
 if(user) {
 
