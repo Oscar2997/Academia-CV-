@@ -86,7 +86,99 @@ usersWithAverage > 0
 averageSum / usersWithAverage
 )
 : 0;
+const ranking = users.map(user => {
 
+  const userScores =
+  scores.find(s =>
+    s.id === user.id
+  );
+
+  const avg =
+  userScores?.stats?.overallAverage || 0;
+
+  return {
+    email:user.email,
+    avg
+  };
+
+})
+.sort((a,b)=>b.avg-a.avg)
+.slice(0,3);
+html += `
+
+<div style="
+margin-bottom:30px;
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:
+0 8px 20px rgba(0,0,0,0.06);
+">
+
+<h2 style="
+margin-bottom:20px;
+color:#0B2137;
+">
+🏆 Ranking General
+</h2>
+
+<div style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+">
+
+${ranking.map((user,index)=>`
+
+<div style="
+padding:20px;
+border-radius:18px;
+background:
+${index===0
+? 'linear-gradient(135deg,#FFD700,#ffcc00)'
+: index===1
+? 'linear-gradient(135deg,#C0C0C0,#d9d9d9)'
+: 'linear-gradient(135deg,#CD7F32,#d99552)'};
+
+color:#0B2137;
+box-shadow:
+0 6px 15px rgba(0,0,0,0.08);
+">
+
+<div style="
+font-size:34px;
+">
+${index===0?'🥇':
+index===1?'🥈':'🥉'}
+</div>
+
+<div style="
+margin-top:10px;
+font-weight:bold;
+font-size:18px;
+word-break:break-word;
+">
+${user.email}
+</div>
+
+<div style="
+margin-top:12px;
+font-size:30px;
+font-weight:bold;
+">
+${user.avg}%
+</div>
+
+</div>
+
+`).join("")}
+
+</div>
+
+</div>
+
+`;
 html += `
 
 <div style="
