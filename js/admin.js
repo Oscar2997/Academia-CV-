@@ -56,12 +56,9 @@ window.openAdminPanel = async function() {
     // BUSCAR DATOS DEL USUARIO
 
     const userScores =
-    scores.find(s =>
-      s.email &&
-      user.email &&
-      s.email.trim().toLowerCase() ===
-      user.email.trim().toLowerCase()
-    );
+scores.find(s =>
+  s.id === user.id
+);
 
     // STATS
 
