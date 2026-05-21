@@ -2822,6 +2822,14 @@ window.firebaseReady = true;
 window.checkPassword = async function() {
 
   const email = document.getElementById("email").value;
+  const fullname =
+document.getElementById("fullname").value;
+
+const branch =
+document.getElementById("branch").value;
+
+const position =
+document.getElementById("position").value;
   const password = document.getElementById("password").value;
 
   try {
@@ -2856,6 +2864,9 @@ if(user) {
   await window.saveUserData("users", {
 
     email: user.email,
+    name: fullname,
+branch: branch,
+position: position,
 
     lastLogin: new Date().toISOString()
 
