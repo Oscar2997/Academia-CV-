@@ -443,7 +443,7 @@ window.openAdminPanel = async function() {
       margin-bottom:10px;
       color:#0B2137;
       ">
-        ${user.email || "Sin correo"}
+        ${user.name || "Sin nombre"}
       </h3>
 
       <p style="
@@ -453,6 +453,25 @@ window.openAdminPanel = async function() {
         Último Login:
         ${user.lastLogin || "No disponible"}
       </p>
+      <p style="
+margin-top:6px;
+font-size:14px;
+color:#555;
+">
+
+🏢 ${user.branch || "Sin sucursal"}
+
+</p>
+
+<p style="
+margin-top:4px;
+font-size:14px;
+color:#555;
+">
+
+💼 ${user.position || "Sin cargo"}
+
+</p>
 
       <div style="
       margin-top:15px;
