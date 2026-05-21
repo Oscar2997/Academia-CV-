@@ -95,7 +95,21 @@ const ranking = users.map(user => {
 
   const avg =
   userScores?.stats?.overallAverage || 0;
+const completedModules =
+Object.keys(
+userScores?.scores || {}
+).filter(key =>
+typeof userScores.scores[key]
+=== "object"
+).length;
 
+const totalModules = 18;
+
+const progressPercent =
+Math.round(
+(completedModules / totalModules)
+* 100
+);
   return {
     email:user.email,
     avg
@@ -500,7 +514,64 @@ scores.find(s =>
           </div>
 
         </div>
+<div style="
+margin-top:20px;
+">
 
+  <div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  ">
+
+    <strong>
+      📚 Progreso
+    </strong>
+
+    <span style="
+    font-size:14px;
+    color:#666;
+    ">
+      ${completedModules}/${totalModules}
+      módulos
+    </span>
+
+  </div>
+
+  <div style="
+  width:100%;
+  height:14px;
+  background:#edf1f5;
+  border-radius:999px;
+  overflow:hidden;
+  ">
+
+    <div style="
+    width:${progressPercent}%;
+    height:100%;
+    background:
+    linear-gradient(
+    90deg,
+    #00B9D6,
+    #14A9C4
+    );
+    border-radius:999px;
+    transition:.4s;
+    ">
+    </div>
+
+  </div>
+
+  <div style="
+  margin-top:6px;
+  font-size:13px;
+  color:#777;
+  ">
+    ${progressPercent}% completado
+  </div>
+
+</div>
         <div style="
           margin-top:20px;
         ">
