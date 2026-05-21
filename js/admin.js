@@ -50,7 +50,176 @@ window.openAdminPanel = async function() {
   // HTML FINAL
 
   let html = "";
+const totalUsers = users.length;
 
+let totalQuizzes = 0;
+let totalAttempts = 0;
+let averageSum = 0;
+let usersWithAverage = 0;
+
+scores.forEach(user => {
+
+  if(user.stats){
+
+    totalQuizzes +=
+    user.stats.totalQuizzes || 0;
+
+    totalAttempts +=
+    user.stats.totalAttempts || 0;
+
+    if(user.stats.overallAverage){
+
+      averageSum +=
+      user.stats.overallAverage;
+
+      usersWithAverage++;
+
+    }
+
+  }
+
+});
+
+const globalAverage =
+usersWithAverage > 0
+? Math.round(
+averageSum / usersWithAverage
+)
+: 0;
+
+html += `
+
+<div style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+">
+
+  <div style="
+  background:linear-gradient(
+  135deg,
+  #00B9D6,
+  #14A9C4
+  );
+  color:white;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:
+  0 8px 20px rgba(0,0,0,0.08);
+  ">
+
+    <div style="
+    font-size:14px;
+    opacity:.9;
+    ">
+      👥 Usuarios
+    </div>
+
+    <div style="
+    font-size:38px;
+    font-weight:bold;
+    margin-top:10px;
+    ">
+      ${totalUsers}
+    </div>
+
+  </div>
+
+  <div style="
+  background:linear-gradient(
+  135deg,
+  #0B2137,
+  #16324F
+  );
+  color:white;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:
+  0 8px 20px rgba(0,0,0,0.08);
+  ">
+
+    <div style="
+    font-size:14px;
+    opacity:.9;
+    ">
+      📚 Quizzes
+    </div>
+
+    <div style="
+    font-size:38px;
+    font-weight:bold;
+    margin-top:10px;
+    ">
+      ${totalQuizzes}
+    </div>
+
+  </div>
+
+  <div style="
+  background:linear-gradient(
+  135deg,
+  #28a745,
+  #43c463
+  );
+  color:white;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:
+  0 8px 20px rgba(0,0,0,0.08);
+  ">
+
+    <div style="
+    font-size:14px;
+    opacity:.9;
+    ">
+      📈 Promedio Global
+    </div>
+
+    <div style="
+    font-size:38px;
+    font-weight:bold;
+    margin-top:10px;
+    ">
+      ${globalAverage}%
+    </div>
+
+  </div>
+
+  <div style="
+  background:linear-gradient(
+  135deg,
+  #F5C242,
+  #f3b300
+  );
+  color:#0B2137;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:
+  0 8px 20px rgba(0,0,0,0.08);
+  ">
+
+    <div style="
+    font-size:14px;
+    opacity:.9;
+    ">
+      🔥 Intentos Totales
+    </div>
+
+    <div style="
+    font-size:38px;
+    font-weight:bold;
+    margin-top:10px;
+    ">
+      ${totalAttempts}
+    </div>
+
+  </div>
+
+</div>
+
+`;
   users.forEach(user => {
 
     // BUSCAR DATOS DEL USUARIO
