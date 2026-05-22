@@ -370,56 +370,173 @@ window.openAdminPanel = async function() {
     // HISTORIAL
     // =========================
 
-    let historyHTML = "";
+let historyHTML = "";
+
+if(
+  userScores &&
+  userScores.scores
+){
+
+  Object.entries(
+    userScores.scores
+  ).forEach(([quiz, value]) => {
 
     if(
-      userScores &&
-      userScores.scores
-    ) {
+      typeof value === "object"
+    ){
 
-      Object.entries(
-        userScores.scores
-      ).forEach(([quiz, value]) => {
+      const avg =
+      value.average || 0;
 
-        if(
-          typeof value === "object"
-        ) {
+      const lastScore =
+      value.lastScore || 0;
 
-          historyHTML += `
+      const attempts =
+      value.attempts || 0;
 
-          <div style="
-          background:#f5f7fb;
-          padding:12px;
-          border-radius:10px;
-          margin-top:10px;
-          ">
+      let status = "";
+      let color = "";
+      let bg = "";
 
-            <strong>
-              Quiz ${quiz}
-            </strong>
+      if(avg >= 80){
 
-            <br>
+        status = "Excelente";
+        color = "#28a745";
+        bg = "#eaf7ee";
 
-            Nota:
-            ${value.lastScore || 0}%
+      } else if(avg >= 60){
 
-            <br>
+        status = "Regular";
+        color = "#f3b300";
+        bg = "#fff8e1";
 
-            Intentos:
-            ${value.attempts || 0}
+      } else {
 
-            <br>
+        status = "Necesita refuerzo";
+        color = "#dc3545";
+        bg = "#fdecec";
 
-            Promedio:
-            ${value.average || 0}%
+      }
+
+      historyHTML += `
+
+      <div style="
+      margin-top:15px;
+      padding:18px;
+      border-radius:16px;
+      background:${bg};
+      border-left:6px solid ${color};
+      transition:.3s;
+      ">
+
+        <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        flex-wrap:wrap;
+        gap:10px;
+        ">
+
+          <div>
+
+            <div style="
+            font-size:18px;
+            font-weight:bold;
+            color:#0B2137;
+            ">
+              📘 Quiz ${quiz}
+            </div>
+
+            <div style="
+            margin-top:6px;
+            font-size:13px;
+            color:${color};
+            font-weight:bold;
+            ">
+              ${status}
+            </div>
 
           </div>
 
-          `;
+          <div style="
+          font-size:26px;
+          font-weight:bold;
+          color:${color};
+          ">
+            ${avg}%
+          </div>
 
-        }
+        </div>
 
-      });
+        <div style="
+        margin-top:15px;
+        display:grid;
+        grid-template-columns:
+        repeat(auto-fit,minmax(120px,1fr));
+        gap:12px;
+        ">
+
+          <div>
+            <div style="
+            font-size:12px;
+            color:#666;
+            ">
+              🎯 Última nota
+            </div>
+
+            <div style="
+            margin-top:4px;
+            font-weight:bold;
+            ">
+              ${lastScore}%
+            </div>
+          </div>
+
+          <div>
+            <div style="
+            font-size:12px;
+            color:#666;
+            ">
+              🔄 Intentos
+            </div>
+
+            <div style="
+            margin-top:4px;
+            font-weight:bold;
+            ">
+              ${attempts}
+            </div>
+          </div>
+
+        </div>
+
+        <div style="
+        margin-top:15px;
+        width:100%;
+        height:12px;
+        background:white;
+        border-radius:999px;
+        overflow:hidden;
+        ">
+
+          <div style="
+          width:${avg}%;
+          height:100%;
+          background:${color};
+          border-radius:999px;
+          transition:.4s;
+          ">
+          </div>
+
+        </div>
+
+      </div>
+
+      `;
+
+    }
+
+  });
 
     }
 
