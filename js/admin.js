@@ -89,9 +89,6 @@ return diff <= 7;
 const inactiveUsers =
 users.length - activeWeek;
 
-const bestUser =
-ranking[0];
-
 const hardestModule =
 "Visión Binocular";
 const branchStats = {};
@@ -318,6 +315,9 @@ Object.entries(branchStats)
     user.name ||
     user.email,
 
+    email:
+    user.email || "Sin correo",
+
     branch:
     user.branch ||
     "Sin sucursal",
@@ -329,6 +329,9 @@ Object.entries(branchStats)
 })
 .sort((a,b)=>b.avg-a.avg)
 .slice(0,5);
+
+const bestUser =
+ranking[0];
 
   // =========================
   // RANKING HTML
