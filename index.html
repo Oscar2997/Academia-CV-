@@ -2879,6 +2879,12 @@ if(user) {
     name: fullname,
 branch: branch,
 position: position,
+role:[
+"oskarmchdo@gmail.com",
+"alevargas93@hotmail.com"
+  ].includes(user.email)
+? "admin"
+: "participant",
 
     lastLogin: new Date().toISOString()
 
