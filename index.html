@@ -2610,16 +2610,32 @@ function finishQuiz() {
   const pct = Math.round((correct/total)*100);
 
   // Save score
- const previousData = QUIZ_SCORES[qs.module] || {
-  attempts: 0,
-  scores: [],
-  average: 0,
-  lastScore: 0,
-  lastActivity: null
+ const previousData =
+typeof QUIZ_SCORES[qs.module]
+=== "object"
+&& QUIZ_SCORES[qs.module] !== null
+? QUIZ_SCORES[qs.module]
+: {
+    attempts: 0,
+    scores: [],
+    average: 0,
+    lastScore: 0,
+    lastActivity: null
 };
 
-if(!Array.isArray(previousData.scores)){
+if(
+!Array.isArray(
+previousData.scores
+)
+){
   previousData.scores = [];
+}
+
+if(
+typeof previousData.attempts
+!== "number"
+){
+  previousData.attempts = 0;
 }
 
 previousData.attempts += 1;
